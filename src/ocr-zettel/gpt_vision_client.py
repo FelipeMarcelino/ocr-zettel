@@ -59,6 +59,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                         "e fornecer uma transcrição completa e precisa do conteúdo. "
                         "Formate toda a sua resposta final em Markdown, preservando a estrutura como títulos, listas, negrito, etc. "
                         "Seja fiel ao conteúdo original da nota."
+                        "Não precisa incluir que houve transcrição."
                     ),
                 },
                 # Adiciona cada imagem à mensagem
@@ -73,7 +74,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
     try:
         logger.info("Enviando requisição para a API. Isso pode demorar...")
         response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
+            model="gpt-4-turbo",
             messages=prompt_messages,
             max_tokens=4096,  # Aumente se suas notas forem muito longas
         )

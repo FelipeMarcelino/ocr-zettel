@@ -1,52 +1,68 @@
 # pdf_processor.py
 import logging
+import os
 from typing import List
 
 import fitz  # PyMuPDF
-from config import PDF_IMAGE_DPI, PDF_ENABLE_CROP, PDF_CROP_BOX
+
+# Importa as configurações atualizadas
+from config import DEBUG_SAVE_IMAGES, OCR_RESOLUTION_DPI, PDF_CROP_BOX, PDF_ENABLE_CROP, SCREEN_ASSUMED_DPI
 from PIL import Image
 
 logger = logging.getLogger(__name__)
 
+
 def process_pdf_to_images(pdf_path: str) -> List[Image.Image]:
-    """Abre um arquivo PDF, converte cada página para uma imagem em escala de cinza,
-    aplica um corte (se ativado) e retorna uma lista de objetos de imagem (Pillow).
-
-    Args:
-        pdf_path (str): O caminho para o arquivo PDF.
-
-    Returns:
-        List[Image.Image]: Uma lista de imagens, uma para cada página do PDF.
-
+    """Abre um arquivo PDF, converte cada página para uma imagem de alta resolução,
+    e aplica um corte calibrado pela resolução da tela e do OCR.
     """
     images = []
+    base_filename = os.path.splitext(os.path.basename(pdf_path))[0]
+
     try:
         logger.info(f"Iniciando pré-processamento do PDF: {pdf_path}")
         doc = fitz.open(pdf_path)
 
+        # 1. Define o zoom para renderizar a imagem na resolução final desejada para o OCR
+        render_zoom = OCR_RESOLUTION_DPI / 72.0
+        mat = fitz.Matrix(render_zoom, render_zoom)
+
+        # 2. Calcula o fator de escala para as coordenadas do corte
+        # Isso converte as coordenadas da sua tela para o espaço da imagem renderizada
+        coord_scale_factor = OCR_RESOLUTION_DPI / SCREEN_ASSUMED_DPI
+        logger.info(f"Fator de escala de coordenadas calculado: {coord_scale_factor:.2f}")
+
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
 
-            # Converte a página para uma imagem (pixmap) em escala de cinza (csGRAY)
-            zoom = PDF_IMAGE_DPI / 72
-            mat = fitz.Matrix(zoom, zoom)
-            pix = page.get_pixmap(matrix=mat, colorspace=fitz.csGRAY)
+            # Gera a imagem na resolução final
+            pix = page.get_pixmap(matrix=mat, colorspace="GRAY")
 
-            # Converte o pixmap para um objeto de imagem do Pillow
-            img = Image.frombytes("G", [pix.width, pix.height], pix.samples)
+            img = Image.frombytes("L", [pix.width, pix.height], pix.samples)
 
-            # --- LÓGICA DE CORTE ADICIONADA ---
-            # Verifica se o corte está ativado na configuração
             if PDF_ENABLE_CROP:
-                # Valida se a caixa de corte foi definida corretamente
                 if not PDF_CROP_BOX or len(PDF_CROP_BOX) != 4:
-                    logger.warning("Corte (crop) está ativado, mas PDF_CROP_BOX é inválido. Pulando corte.")
+                    logger.warning("Corte (crop) está ativado, mas PDF_CROP_BOX é inválido.")
                 else:
                     try:
-                        logger.info(f"Aplicando corte na página {page_num + 1} com as coordenadas: {PDF_CROP_BOX}")
-                        img = img.crop(PDF_CROP_BOX)
+                        # 3. Aplica o fator de escala às coordenadas de corte
+                        scaled_crop_box = (
+                            int(PDF_CROP_BOX[0] * coord_scale_factor),  # esquerda
+                            int(PDF_CROP_BOX[1] * coord_scale_factor),  # topo
+                            int(PDF_CROP_BOX[2] * coord_scale_factor),  # direita
+                            int(PDF_CROP_BOX[3] * coord_scale_factor),   # baixo
+                        )
+
+                        logger.info(f"Aplicando corte com coordenadas escaladas: {scaled_crop_box}")
+                        img = img.crop(scaled_crop_box)
+
                     except Exception as e:
-                        logger.error(f"Falha ao aplicar o corte na imagem da página {page_num + 1}: {e}", exc_info=True)
+                        logger.error(f"Falha ao aplicar o corte na página {page_num + 1}: {e}", exc_info=True)
+
+            if DEBUG_SAVE_IMAGES:
+                debug_filename = f"debug_{base_filename}_page_{page_num + 1}.png"
+                img.save(debug_filename)
+                logger.info(f"IMAGEM DE DEPURAÇÃO SALVA EM: {os.path.abspath(debug_filename)}")
 
             images.append(img)
 

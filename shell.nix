@@ -20,6 +20,10 @@ pkgs.mkShell {
     pythonPackages.pymupdf
     pythonPackages.pillow
     pythonPackages.numpy
+    pythonPackages.rapidocr-onnxruntime
+    pythonPackages.torch
+    pythonPackages.torchvision
+    pythonPackages.easyocr
 
   ];
   venvDir = "./.venv";
