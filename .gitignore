@@ -1,3 +1,6 @@
 .envrc
 *.egg-info*
 .direnv
+__pycache__/
+*.pyc
+.env

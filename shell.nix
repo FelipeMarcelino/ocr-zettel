@@ -14,6 +14,13 @@ pkgs.mkShell {
     pkgs.autoPatchelfHook
     pythonPackages.onnxruntime
     pkgs.onnxruntime
+    pythonPackages.watchdog
+    pythonPackages.python-dotenv
+    pythonPackages.openai
+    pythonPackages.pymupdf
+    pythonPackages.pillow
+    pythonPackages.numpy
+
   ];
   venvDir = "./.venv";
   postVenvCreation = ''
