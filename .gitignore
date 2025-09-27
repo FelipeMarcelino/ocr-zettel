@@ -1,2 +1,3 @@
 .envrc
 *.egg-info*
+.direnv
