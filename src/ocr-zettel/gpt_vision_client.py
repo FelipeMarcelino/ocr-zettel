@@ -52,15 +52,25 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                 {
                     "type": "text",
                     "text": (
-                        "A seguir estão as páginas de uma nota que escaneei. "
-                        "Eu usei um OCR local que extraiu o seguinte texto preliminar:\n\n"
-                        f"--- INÍCIO DO TEXTO DO OCR LOCAL ---\n{local_ocr_text}\n--- FIM DO TEXTO DO OCR LOCAL ---\n\n"
-                        "Sua tarefa é analisar as imagens das páginas com atenção, ignorar o texto do OCR local se ele estiver incorreto, "
-                        "e fornecer uma transcrição completa e precisa do conteúdo. "
-                        "Formate toda a sua resposta final em Markdown, preservando a estrutura como títulos, listas, negrito, etc. "
-                        "Seja fiel ao conteúdo original da nota."
-                        "Não precisa incluir que houve transcrição."
-                        "Não precisa incluir ``` entre o texto, apenas as tags e códigos com o markdown."
+                            f"""
+                            Sua tarefa tem duas fases: transcrever e formatar.
+
+                            **FASE 1: TRANSCRIÇÃO**
+                            Analise as imagens da nota manuscrita com atenção máxima aos detalhes. Ignore completamente o texto preliminar do OCR local, pois ele pode conter erros. Sua meta é obter uma transcrição 100% fiel e precisa do conteúdo das imagens.
+
+                            **FASE 2: FORMATAÇÃO**
+                            Depois de transcrever mentalmente o texto, formate sua resposta final usando estritamente a sintaxe Markdown.
+                            - Preserve todos os títulos (ex: linhas começando com #, ##).
+                            - Preserve listas com marcadores (-, *) ou números (1., 2.).
+                            - Preserve qualquer formatação de **negrito** ou *itálico*.
+                            - Preserve quebras de linha e parágrafos.
+
+                            **REGRA DE SAÍDA OBRIGATÓRIA:**
+                            Sua resposta deve ser **APENAS** o texto Markdown transcrito. Não inclua NENHUMA palavra, frase ou comentário introdutório como "Aqui está a transcrição:". Não envolva a resposta final em blocos de código ```markdown. A saída deve ser o conteúdo puro, pronto para ser salvo em um arquivo .md.
+
+                            --- INÍCIO DO TEXTO DO OCR LOCAL (APENAS PARA CONTEXTO, IGNORE SE ESTIVER ERRADO) ---
+                            {local_ocr_text}
+                            --- FIM DO TEXTO DO OCR LOCAL ---"""
                     ),
                 },
                 # Adiciona cada imagem à mensagem
