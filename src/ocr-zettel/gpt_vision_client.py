@@ -59,7 +59,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                         "e fornecer uma transcrição completa e precisa do conteúdo. "
                         "Formate toda a sua resposta final em Markdown, preservando a estrutura como títulos, listas, negrito, etc. "
                         "Seja fiel ao conteúdo original da nota."
-                        "Não precisa incluir que houve transcrição."
+                        "Não precisa incluir que houve transcrição. E também não precisa incluir a marcação markdown."
                     ),
                 },
                 # Adiciona cada imagem à mensagem
