@@ -53,7 +53,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                     "type": "text",
                     "text": (
                             f"""
-                            Sua tarefa tem três fases: transcrever, formatar e criar.
+                            Sua tarefa tem duas fases: transcrever, formatar
 
                             **FASE 1: TRANSCRIÇÃO**
                             Analise as imagens da nota manuscrita com atenção máxima aos detalhes. Ignore completamente o texto preliminar do OCR local, pois ele pode conter erros. Sua meta é obter uma transcrição 100% fiel e precisa do conteúdo das imagens.
@@ -64,21 +64,11 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Preserve listas com marcadores (-, *) ou números (1., 2.).
                             - Preserve qualquer formatação de **negrito** ou *itálico*.
                             - Preserve quebras de linha e parágrafos.
-                            - Preserve as hashtags (#palavra) sem espaço
-                            
-                            **FASE 3: CRIATIVIDADE:
-                            Depois de preservar o texto. Tente melhorar as marcações do markdown que você julgar
-                            importante ou fazer sentido. 
-                            - Verifica se há como itemnizar algumas coisas ou transformar em t́opicos.
-                            - Caso haja diagramas tente desenhar com o mermaid par construir um flowchart para usar com
-                              markdown.
-                            - Para equações podeser inseridas utilizando latex no markdown. 
-                            - Deixa o markdown organizado da melhor forma possível. 
-                            - Mantenha o título maior com a data do daily post e os outros títulos de cada post começam
-                              com duas ## como título menor. Não precisar incluir ## na hashtag.
-                            - Crie uma hierarquia de títulos que faça sentido. Algumas coisas podem colocadas em uma
-                              lista de itens por exemplo. 
+                            - Preserve as tags (#palavra) que fica logo abaixo do t́itulo.
                             - Seja criativo em organizar a nota, utilize tabelas, callouts, listas, negrito, itálico. 
+                            - Para equações utilize latex no markdown.
+                            - Caso haja diagramas tente formatar utilizando mermaid flowchart no markdown.
+                            
 
 
                             **REGRA DE SAÍDA OBRIGATÓRIA:**
