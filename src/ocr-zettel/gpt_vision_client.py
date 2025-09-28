@@ -53,7 +53,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                     "type": "text",
                     "text": (
                             f"""
-                            Sua tarefa tem duas fases: transcrever e formatar.
+                            Sua tarefa tem três fases: transcrever, formatar e criar.
 
                             **FASE 1: TRANSCRIÇÃO**
                             Analise as imagens da nota manuscrita com atenção máxima aos detalhes. Ignore completamente o texto preliminar do OCR local, pois ele pode conter erros. Sua meta é obter uma transcrição 100% fiel e precisa do conteúdo das imagens.
@@ -64,6 +64,21 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Preserve listas com marcadores (-, *) ou números (1., 2.).
                             - Preserve qualquer formatação de **negrito** ou *itálico*.
                             - Preserve quebras de linha e parágrafos.
+                            
+                            **FASE 3: CRIATIVIDADE:
+                            Depois de preservar o texto. Tente melhorar as marcações do markdown que você julgar
+                            importante ou fazer sentido. 
+                            - Perceba que talvez perto do título há hashtags com palavras. São palavras que não tem
+                              espaço entre hashtag. São hashtags de identifiação do tópico. Preserve as hashtags desse
+                              formato
+                            - Verifica se há como itemnizar algumas coisas ou transformar em t́opicos.
+                            - Caso haja diagramas tente desenhar com o mermaid par construir um flowchart para usar com
+                              markdown.
+                            - Para equações podeser inseridas utilizando latex no markdown. 
+                            - Deixa o markdown organizado da melhor forma possível. 
+                            - Mantenha o título maior com a data do daily post e os outros títulos de cada post começam
+                              com duas ## como título menor.
+
 
                             **REGRA DE SAÍDA OBRIGATÓRIA:**
                             Sua resposta deve ser **APENAS** o texto Markdown transcrito. Não inclua NENHUMA palavra, frase ou comentário introdutório como "Aqui está a transcrição:". Não envolva a resposta final em blocos de código ```markdown. A saída deve ser o conteúdo puro, pronto para ser salvo em um arquivo .md.
