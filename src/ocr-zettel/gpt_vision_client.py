@@ -64,13 +64,11 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Preserve listas com marcadores (-, *) ou números (1., 2.).
                             - Preserve qualquer formatação de **negrito** ou *itálico*.
                             - Preserve quebras de linha e parágrafos.
+                            - Preserve as hashtags (#palavra) sem espaço
                             
                             **FASE 3: CRIATIVIDADE:
                             Depois de preservar o texto. Tente melhorar as marcações do markdown que você julgar
                             importante ou fazer sentido. 
-                            - Perceba que talvez perto do título há hashtags com palavras. São palavras que não tem
-                              espaço entre hashtag. São hashtags de identifiação do tópico. Preserve as hashtags desse
-                              formato
                             - Verifica se há como itemnizar algumas coisas ou transformar em t́opicos.
                             - Caso haja diagramas tente desenhar com o mermaid par construir um flowchart para usar com
                               markdown.
