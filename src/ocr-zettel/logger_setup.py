@@ -10,7 +10,6 @@ def setup_logging():
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         handlers=[
-            logging.FileHandler("app.log"), # Salva os logs em um arquivo
             logging.StreamHandler(sys.stdout), # Mostra os logs no console
         ],
     )
@@ -18,6 +17,7 @@ def setup_logging():
     # Define o logger para a biblioteca da OpenAI para não poluir o log com muitos detalhes
     logging.getLogger("openai").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("PIL").setLevel(logging.INFO) # Para a biblioteca de imagem
 
     logger = logging.getLogger(__name__)
     logger.info("Sistema de logging configurado.")
