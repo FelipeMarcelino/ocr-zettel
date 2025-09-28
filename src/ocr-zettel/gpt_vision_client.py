@@ -77,7 +77,10 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Para equações podeser inseridas utilizando latex no markdown. 
                             - Deixa o markdown organizado da melhor forma possível. 
                             - Mantenha o título maior com a data do daily post e os outros títulos de cada post começam
-                              com duas ## como título menor.
+                              com duas ## como título menor. Não precisar incluir ## na hashtag.
+                            - Crie uma hierarquia de títulos que faça sentido. Algumas coisas podem colocadas em uma
+                              lista de itens por exemplo. 
+                            - Seja criativo em organizar a nota, utilize tabelas, callouts, listas, negrito, itálico. 
 
 
                             **REGRA DE SAÍDA OBRIGATÓRIA:**
