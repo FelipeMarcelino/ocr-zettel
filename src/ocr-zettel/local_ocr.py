@@ -2,61 +2,71 @@
 import logging
 from typing import List
 
-import easyocr
-import numpy as np
+import torch
 from PIL import Image
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
 logger = logging.getLogger(__name__)
 
-# --- Inicialização do Motor EasyOCR ---
-# O EasyOCR é inicializado uma vez. A primeira execução irá baixar os modelos
-# para o idioma especificado (neste caso, português).
+# --- Inicialização do Motor TrOCR ---
+# Carregamos o modelo e o processador uma única vez para evitar recarregá-los
+# a cada arquivo processado. Isso pode consumir uma quantidade significativa de RAM.
 try:
-    logger.info("Inicializando o motor EasyOCR para o idioma 'pt' (Português)...")
-    # 'gpu=False' força o uso da CPU se você não tiver uma GPU configurada.
-    # Se tiver uma GPU NVIDIA com CUDA, pode tentar 'gpu=True'.
-    ocr_reader = easyocr.Reader(["pt"], gpu=False)
-    logger.info("Motor EasyOCR inicializado com sucesso.")
+    logger.info("Inicializando o motor TrOCR da Microsoft (pode demorar na primeira vez)...")
+
+    # Verifica se há uma GPU disponível e a define como dispositivo principal
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"TrOCR usará o dispositivo: {device.type}")
+
+    # O processador prepara a imagem para o modelo (redimensiona, normaliza, etc.)
+    processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
+
+    # O modelo é a rede neural que faz a "leitura" da imagem
+    model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten").to(device)
+
+    logger.info("Motor TrOCR inicializado com sucesso.")
+
 except Exception as e:
-    logger.error(f"Falha ao inicializar o motor EasyOCR: {e}", exc_info=True)
-    ocr_reader = None
+    logger.error(f"Falha ao inicializar o motor TrOCR. Verifique a instalação do PyTorch e transformers. Erro: {e}", exc_info=True)
+    processor = None
+    model = None
+    device = "cpu"
 
-def extract_text_with_easyocr(images: List[Image.Image]) -> str:
-    """Usa a biblioteca EasyOCR para extrair texto de uma lista de imagens.
-
-    Args:
-        images (List[Image.Image]): Lista de imagens pré-processadas do PDF.
-
-    Returns:
-        str: O texto extraído, com páginas separadas por um divisor.
-
+def extract_text_with_trocr(images: List[Image.Image]) -> str:
+    """Usa o modelo TrOCR da Microsoft para extrair texto manuscrito de imagens.
     """
-    if not ocr_reader:
-        logger.error("Motor EasyOCR não está disponível. Pulando extração de texto local.")
-        return "[ERRO: OCR LOCAL NÃO INICIALIZADO]"
+    if not model or not processor:
+        logger.error("Motor TrOCR não está disponível. Pulando extração de texto.")
+        return "[ERRO: MOTOR TrOCR NÃO INICIALIZADO]"
 
     all_pages_text = []
-    logger.info(f"Iniciando extração de texto com EasyOCR para {len(images)} página(s)...")
+    logger.info(f"Iniciando extração de texto com TrOCR para {len(images)} página(s)...")
 
     try:
         for i, img in enumerate(images):
-            # Converte a imagem do Pillow para um array NumPy
-            img_np = np.array(img)
+            # O TrOCR espera imagens no formato RGB
+            if img.mode != "RGB":
+                img = img.convert("RGB")
 
-            # O EasyOCR lê o texto da imagem. 'detail=0' retorna apenas o texto.
-            result = ocr_reader.readtext(img_np, detail=0, paragraph=True)
+            # Prepara a imagem usando o processador e envia para o dispositivo (CPU ou GPU)
+            pixel_values = processor(images=img, return_tensors="pt").pixel_values.to(device)
 
-            if result:
-                page_text = "\n".join(result)
-                all_pages_text.append(page_text)
+            # Gera os IDs dos tokens a partir dos pixels da imagem
+            generated_ids = model.generate(pixel_values)
+
+            # Decodifica os IDs dos tokens para texto legível
+            generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+            if generated_text:
+                all_pages_text.append(generated_text)
                 logger.info(f"Texto extraído da página {i+1}.")
             else:
-                logger.info(f"Nenhum texto detectado na página {i+1} pelo EasyOCR.")
+                logger.info(f"Nenhum texto detectado na página {i+1} pelo TrOCR.")
                 all_pages_text.append(f"[Nenhum texto detectado na página {i+1}]")
 
-        logger.info("Extração de texto com EasyOCR concluída.")
+        logger.info("Extração de texto com TrOCR concluída.")
         return "\n\n---\n[Nova Página]\n---\n\n".join(all_pages_text)
 
     except Exception as e:
-        logger.error(f"Erro durante a execução do EasyOCR: {e}", exc_info=True)
-        return "[ERRO DURANTE A EXECUÇÃO DO OCR LOCAL]"
+        logger.error(f"Erro durante a execução do TrOCR: {e}", exc_info=True)
+        return "[ERRO DURANTE A EXECUÇÃO DO OCR LOCAL COM TrOCR]"

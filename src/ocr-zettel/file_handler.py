@@ -106,7 +106,7 @@ class PDFChangeHandler(FileSystemEventHandler):
                 return
 
             # 2. Extrair texto com OCR local
-            local_text = local_ocr.extract_text_with_easyocr(images)
+            local_text = local_ocr.extract_text_with_trocr(images)
 
             # 3. Chamar a API GPT-4o para obter o Markdown
             markdown_result = gpt_vision_client.get_markdown_from_vision(local_text, images)

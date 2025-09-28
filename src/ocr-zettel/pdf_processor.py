@@ -5,7 +5,7 @@ from typing import List
 
 import fitz  # PyMuPDF
 
-# Importa as configurações atualizadas
+# Importa as configurações. As de binarização não são mais usadas.
 from config import DEBUG_SAVE_IMAGES, OCR_RESOLUTION_DPI, PDF_CROP_BOX, PDF_ENABLE_CROP, SCREEN_ASSUMED_DPI
 from PIL import Image
 
@@ -13,49 +13,48 @@ logger = logging.getLogger(__name__)
 
 
 def process_pdf_to_images(pdf_path: str) -> List[Image.Image]:
-    """Abre um arquivo PDF, converte cada página para uma imagem de alta resolução,
-    e aplica um corte calibrado pela resolução da tela e do OCR.
+    """Abre um arquivo PDF, converte cada página para uma imagem de alta resolução em RGB
+    e aplica um corte calibrado. Esta é a versão otimizada para o TrOCR.
     """
     images = []
     base_filename = os.path.splitext(os.path.basename(pdf_path))[0]
 
     try:
-        logger.info(f"Iniciando pré-processamento do PDF: {pdf_path}")
+        logger.info(f"Iniciando pré-processamento do PDF para TrOCR: {pdf_path}")
         doc = fitz.open(pdf_path)
 
-        # 1. Define o zoom para renderizar a imagem na resolução final desejada para o OCR
         render_zoom = OCR_RESOLUTION_DPI / 72.0
         mat = fitz.Matrix(render_zoom, render_zoom)
 
-        # 2. Calcula o fator de escala para as coordenadas do corte
-        # Isso converte as coordenadas da sua tela para o espaço da imagem renderizada
         coord_scale_factor = OCR_RESOLUTION_DPI / SCREEN_ASSUMED_DPI
-        logger.info(f"Fator de escala de coordenadas calculado: {coord_scale_factor:.2f}")
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
 
-            # Gera a imagem na resolução final
-            pix = page.get_pixmap(matrix=mat, colorspace="GRAY")
+            # --- MUDANÇA PRINCIPAL AQUI ---
+            # Renderiza a imagem em RGB, não mais em Grayscale.
+            pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB)
 
-            img = Image.frombytes("L", [pix.width, pix.height], pix.samples)
+            # Converte diretamente para uma imagem Pillow RGB.
+            # A verificação de pix.n não é mais tão necessária, mas é uma boa prática.
+            if pix.alpha: # Se tiver canal alfa (transparência), remove.
+                img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples).convert("RGB")
+            else:
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
             if PDF_ENABLE_CROP:
                 if not PDF_CROP_BOX or len(PDF_CROP_BOX) != 4:
                     logger.warning("Corte (crop) está ativado, mas PDF_CROP_BOX é inválido.")
                 else:
                     try:
-                        # 3. Aplica o fator de escala às coordenadas de corte
                         scaled_crop_box = (
-                            int(PDF_CROP_BOX[0] * coord_scale_factor),  # esquerda
-                            int(PDF_CROP_BOX[1] * coord_scale_factor),  # topo
-                            int(PDF_CROP_BOX[2] * coord_scale_factor),  # direita
-                            int(PDF_CROP_BOX[3] * coord_scale_factor),   # baixo
+                            int(PDF_CROP_BOX[0] * coord_scale_factor),
+                            int(PDF_CROP_BOX[1] * coord_scale_factor),
+                            int(PDF_CROP_BOX[2] * coord_scale_factor),
+                            int(PDF_CROP_BOX[3] * coord_scale_factor),
                         )
-
                         logger.info(f"Aplicando corte com coordenadas escaladas: {scaled_crop_box}")
                         img = img.crop(scaled_crop_box)
-
                     except Exception as e:
                         logger.error(f"Falha ao aplicar o corte na página {page_num + 1}: {e}", exc_info=True)
 
