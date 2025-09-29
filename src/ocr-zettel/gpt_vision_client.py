@@ -65,9 +65,8 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Preserve listas com marcadores (-, *) ou números (1., 2.).
                             - Preserve qualquer formatação de **negrito** ou *itálico*.
                             - Preserve quebras de linha e parágrafos.
-                            - Preserve as tags (#palavra) que fica logo abaixo do t́itulo. As tags possuem uma palavra
-                              sem dar espaço entre elas. Diferente do título que tem um espaço entre a palavra. Não
-                              remova o espaço da tag.
+                            - Onde estiver escrito tag + uma palavra tipo assim -> tag: carreira, transforme em tag
+                              markdown desta forma #carreira, sem espaço entre o hashtag e a palavra
                             - Seja criativo em organizar a nota, utilize tabelas, callouts, listas, negrito, itálico. 
                             - Para equações utilize latex no markdown.
                             - Caso haja diagramas tente formatar utilizando mermaid flowchart no markdown.
