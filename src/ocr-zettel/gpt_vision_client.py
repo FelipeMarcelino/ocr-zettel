@@ -70,6 +70,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             - Seja criativo em organizar a nota, utilize tabelas, callouts, listas, negrito, itálico. 
                             - Para equações utilize latex no markdown.
                             - Caso haja diagramas tente formatar utilizando mermaid flowchart no markdown.
+                            - Verifique se a nota não está vazia, caso esteja, refaça o OCR do começo ao fim.
                             
 
 
