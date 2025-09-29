@@ -33,7 +33,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
         logger.error("Cliente da OpenAI não inicializado. Abortando requisição.")
         return "Erro: Cliente da API não configurado."
 
-    logger.info("Preparando requisição para a API do GPT-4 Vision...")
+    logger.info("Preparando requisição para a API do GPT-5...")
 
     # Converte imagens para base64
     base64_images = []
@@ -60,11 +60,14 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
 
                             **FASE 2: FORMATAÇÃO**
                             Depois de transcrever mentalmente o texto, formate sua resposta final usando estritamente a sintaxe Markdown.
-                            - Preserve todos os títulos (ex: linhas começando com #, ##).
+                            - Preserve todos os títulos (ex: linhas começando com #, ##), com exeção de tags que explico
+                              abaixo.
                             - Preserve listas com marcadores (-, *) ou números (1., 2.).
                             - Preserve qualquer formatação de **negrito** ou *itálico*.
                             - Preserve quebras de linha e parágrafos.
-                            - Preserve as tags (#palavra) que fica logo abaixo do t́itulo.
+                            - Preserve as tags (#palavra) que fica logo abaixo do t́itulo. As tags possuem uma palavra
+                              sem dar espaço entre elas. Diferente do título que tem um espaço entre a palavra. Não
+                              remova o espaço da tag.
                             - Seja criativo em organizar a nota, utilize tabelas, callouts, listas, negrito, itálico. 
                             - Para equações utilize latex no markdown.
                             - Caso haja diagramas tente formatar utilizando mermaid flowchart no markdown.
@@ -79,7 +82,6 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
                             --- FIM DO TEXTO DO OCR LOCAL ---"""
                     ),
                 },
-                # Adiciona cada imagem à mensagem
                 *[
                     {"type": "image_url", "image_url": {"url": b64_img}}
                     for b64_img in base64_images
