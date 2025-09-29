@@ -91,9 +91,14 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
     try:
         logger.info("Enviando requisição para a API. Isso pode demorar...")
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-image-1",
             messages=prompt_messages,
             max_tokens=4096,  # Aumente se suas notas forem muito longas
+            temperature=0.11,
+            top_p=0.15,
+            presence_penalty=0,
+            frequency_penalty=0,
+            stop="null",
         )
 
         markdown_content = response.choices[0].message.content
