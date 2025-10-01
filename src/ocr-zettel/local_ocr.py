@@ -2,6 +2,7 @@
 import logging
 from typing import List
 
+import config
 import torch
 from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
@@ -19,10 +20,10 @@ try:
     logger.info(f"TrOCR usará o dispositivo: {device.type}")
 
     # O processador prepara a imagem para o modelo (redimensiona, normaliza, etc.)
-    processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
+    processor = TrOCRProcessor.from_pretrained(config.FINAL_MODEL_PATH)
 
     # O modelo é a rede neural que faz a "leitura" da imagem
-    model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten").to(device)
+    model = VisionEncoderDecoderModel.from_pretrained(config.FINAL_MODEL_PATH).to(device)
 
     logger.info("Motor TrOCR inicializado com sucesso.")
 
