@@ -29,6 +29,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
         str: O conteúdo em Markdown retornado pela API.
 
     """
+    print(f"Local OCR: {local_ocr_text}")
     if not client:
         logger.error("Cliente da OpenAI não inicializado. Abortando requisição.")
         return "Erro: Cliente da API não configurado."
