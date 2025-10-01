@@ -24,6 +24,8 @@ pkgs.mkShell {
     pythonPackages.torchvision
     pythonPackages.transformers
     pythonPackages.sentencepiece
+    pythonPackages.pyspellchecker
+    pythonPackages.opencv4
 
   ];
   venvDir = "./.venv";

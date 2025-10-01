@@ -5,7 +5,6 @@ import time
 
 import gpt_vision_client
 import local_ocr
-import pdf_processor
 from watchdog.events import FileSystemEventHandler
 
 logger = logging.getLogger(__name__)
@@ -99,19 +98,13 @@ class PDFChangeHandler(FileSystemEventHandler):
         self.processed_files[pdf_path] = time.time() # Marca como processado
 
         try:
-            # 1. Pré-processar o PDF para obter imagens
-            images = pdf_processor.process_pdf_to_images(pdf_path)
-            if not images:
-                logger.warning(f"Nenhuma imagem foi extraída de '{pdf_path}'. Abortando.")
-                return
+            # 1. Extrair texto com OCR local
+            local_text, images = local_ocr.extract_text_from_pdf(pdf_path)
 
-            # 2. Extrair texto com OCR local
-            local_text = local_ocr.extract_text_with_trocr(images)
-
-            # 3. Chamar a API GPT-4o para obter o Markdown
+            # 2. Chamar a API GPT-4o para obter o Markdown
             markdown_result = gpt_vision_client.get_markdown_from_vision(local_text, images)
 
-            # 4. Salvar o resultado em um arquivo .md
+            # 3. Salvar o resultado em um arquivo .md
             markdown_path = os.path.splitext(pdf_path)[0] + ".md"
             with open(markdown_path, "w", encoding="utf-8") as f:
                 f.write(markdown_result)
