@@ -98,6 +98,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
             model="gpt-5-mini",
             messages=prompt_messages,
             max_completion_tokens=4096,  # Aumente se suas notas forem muito longas
+            reasoning_effort="high",
         )
 
         markdown_content = response.choices[0].message.content
