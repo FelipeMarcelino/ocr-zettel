@@ -13,6 +13,8 @@ if not OPENAI_API_KEY:
 
 WATCH_DIRECTORY = "/home/felipemarcelino/Google_Drive/onyx/TabUltraCPro/Notebooks/"
 
+FINAL_MODEL_PATH = "/home/felipemarcelino/Projects/trocr/meu-trocr-final/"
+
 OCR_RESOLUTION_DPI = 300
 PDF_ENABLE_CROP = True
 PDF_CROP_BOX = (120, 100, 2350, 3300)
