@@ -95,7 +95,7 @@ def get_markdown_from_vision(local_ocr_text: str, images: List[Image.Image]) -> 
     try:
         logger.info("Enviando requisição para a API. Isso pode demorar...")
         response = client.chat.completions.create(
-            model="gpt-5-mini",
+            model="gpt-4-turbo",
             messages=prompt_messages,
             max_completion_tokens=4096,  # Aumente se suas notas forem muito longas
             reasoning_effort="high",
